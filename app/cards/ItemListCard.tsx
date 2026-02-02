@@ -1,6 +1,14 @@
 import { Item, ItemListCardProps } from "@/lib/types";
 import { Trash2 } from "lucide-react";
 
+// Compute delete button content based on loading state
+function deleteHtml(isDeleting: boolean) {
+  if (isDeleting) {
+    return "...";
+  }
+  return <Trash2 size={18} />;
+}
+
 export default function ItemListCard({
   item,
   onDelete,
@@ -9,6 +17,9 @@ export default function ItemListCard({
   const handleDelete = async () => {
     await onDelete(item.id);
   };
+
+  // Compute content before return
+  const deleteButtonContent = deleteHtml(isDeleting);
 
   return (
     <li className="p-4 border rounded-md flex items-center justify-between">
@@ -33,8 +44,10 @@ export default function ItemListCard({
         disabled={isDeleting}
         aria-label={`Delete ${item.name}`}
       >
-        <Trash2 size={18} />
+        {deleteButtonContent}
       </button>
     </li>
   );
 }
+
+export { deleteHtml };
