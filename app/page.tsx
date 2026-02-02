@@ -3,22 +3,22 @@
 import { useCallback, useEffect, useState } from "react";
 import AddItemForm from "./forms/addItem";
 import ReusableDialog from "./reusables/dialog";
-import ItemListCard from "./components/ItemListCard";
-import { apiGet, apiDelete } from "@/services/api";
+import ItemListCard from "./cards/ItemListCard";
 import { Item } from "@/lib/types";
+import { fetchItems, handleDeleteItemWithNotification } from "@/services/actions";
 
 export default function Home() {
   const [items, setItems] = useState<Item[]>([]);
   const [loading, setLoading] = useState(true);
   const [deletingId, setDeletingId] = useState<number | null>(null);
 
-  const fetchItems = useCallback(async () => {
+  const loadItems = useCallback(async () => {
     try {
       setLoading(true);
-      const data = await apiGet<Item[]>("/products/items/get/");
+      const data = await fetchItems();
       setItems(data);
     } catch (err) {
-      console.error("Failed to fetch items:", err);
+      console.error("Failed to load items:", err);
     } finally {
       setLoading(false);
     }
@@ -28,11 +28,9 @@ export default function Home() {
     async (itemId: number) => {
       try {
         setDeletingId(itemId);
-        await apiDelete(`/products/items/delete/${itemId}/`);
+        await handleDeleteItemWithNotification(itemId);
         setItems((prev) => prev.filter((item) => item.id !== itemId));
       } catch (err) {
-        console.error("Failed to delete item:", err);
-        alert("Failed to delete item");
         setDeletingId(null);
       }
     },
@@ -40,8 +38,8 @@ export default function Home() {
   );
 
   useEffect(() => {
-    fetchItems();
-  }, [fetchItems]);
+    loadItems();
+  }, [loadItems]);
 
   return (
     <div className="grid items-center">
@@ -55,7 +53,7 @@ export default function Home() {
           <div className="text-2xl font-bold my-4">Actions</div>
 
           <ReusableDialog
-            form={<AddItemForm />}
+            form={<AddItemForm onSuccess={loadItems} />}
             description="Our Form to add items to Shopping list"
             title="Add items to Shopping list"
             buttonText="Add Item"

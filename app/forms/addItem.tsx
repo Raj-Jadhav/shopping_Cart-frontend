@@ -2,18 +2,19 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { toast } from "sonner";
 
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { addItemSchema, AddItemSchema } from "@/formSchemas/schemas";
-import { apiPostForm } from "@/services/api";
-import { useRouter } from "next/navigation";
+import { handleAddItemWithNotification } from "@/services/actions";
 
-export default function AddItemForm() {
-  const router = useRouter();
+interface AddItemFormProps {
+  onSuccess?: () => void;
+}
+
+export default function AddItemForm({ onSuccess }: AddItemFormProps) {
   const form = useForm<AddItemSchema>({
     resolver: zodResolver(addItemSchema),
     defaultValues: {
@@ -24,23 +25,20 @@ export default function AddItemForm() {
   });
 
   async function onSubmit(values: AddItemSchema) {
-  toast.loading("Adding item...", { id: "add-item" });
+    try {
+      const formData = new FormData();
+      formData.append("name", values.name);
+      formData.append("description", values.description);
+      formData.append("photo", values.photo);
 
-  try {
-    const formData = new FormData();
-    formData.append("name", values.name);
-    formData.append("description", values.description);
-    formData.append("photo", values.photo);
+      await handleAddItemWithNotification(formData);
 
-    await apiPostForm("/products/items/add/", formData);
-
-    toast.success("Item added successfully", { id: "add-item" });
-    window.location.reload()
-  } catch (err) {
-    toast.error("Failed to add item", { id: "add-item" });
-    console.log(err)
+      form.reset();
+      onSuccess?.();
+    } catch (err) {
+      console.error(err);
+    }
   }
-}
 
   return (
     <Form {...form}>
