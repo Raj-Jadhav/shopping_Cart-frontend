@@ -3,8 +3,8 @@
  * Reusable functions for add, delete, fetch operations
  */
 
-import { Item, AddItemSchema } from "@/lib/types";
-import { apiGet, apiDelete, apiPostForm } from "@/services/api";
+import { Item, } from "@/lib/types";
+import { apiGet, apiDelete, apiPostForm, apiUpdateForm } from "@/services/api";
 import { toast } from "sonner";
 
 /**
@@ -29,6 +29,15 @@ export async function fetchItems(): Promise<Item[]> {
 export async function deleteItem(itemId: number): Promise<void> {
   try {
     await apiDelete(`/products/items/delete/${itemId}/`);
+  } catch (err) {
+    console.error("Failed to delete item:", err);
+    throw new Error("Failed to delete item");
+  }
+}
+
+export async function updateItem(itemId: number, formData: FormData): Promise<void> {
+  try {
+    await apiUpdateForm(`/products/items/update/${itemId}/`, formData);
   } catch (err) {
     console.error("Failed to delete item:", err);
     throw new Error("Failed to delete item");

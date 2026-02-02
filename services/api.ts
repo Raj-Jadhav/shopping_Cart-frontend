@@ -72,5 +72,16 @@ export const apiPostForm = <T>(endpoint: string, formData: FormData) =>
     if (!res.ok) throw new Error(await res.text());
     return res.json() as Promise<T>;
   });
+
 export const apiDelete = <T = unknown>(endpoint: string) =>
   apiFetch<T>(endpoint, { method: "DELETE" });
+
+export const apiUpdateForm = <T>(endpoint: string, formData: FormData) =>
+  fetch(`${API_URL}${endpoint}`, {
+    method: "POST",
+    body: formData,                 // FormData handles files and text
+    credentials: "include",         // send cookies/session
+  }).then(async (res) => {
+    if (!res.ok) throw new Error(await res.text());
+    return res.json() as Promise<T>;
+  });
