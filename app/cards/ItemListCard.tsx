@@ -1,4 +1,5 @@
 import { Item, ItemListCardProps } from "@/lib/types";
+import { Trash2 } from "lucide-react";
 
 export default function ItemListCard({
   item,
@@ -27,12 +28,12 @@ export default function ItemListCard({
       </div>
 
       <button
-        className="px-3 py-1 bg-red-600 text-white rounded disabled:opacity-50 disabled:cursor-not-allowed"
+        className="p-2 bg-red-600 text-white rounded hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
         onClick={handleDelete}
         disabled={isDeleting}
         aria-label={`Delete ${item.name}`}
       >
-        {isDeleting ? "Deleting..." : "Delete"}
+        <Trash2 size={18} />
       </button>
     </li>
   );
